@@ -7,6 +7,12 @@ const ENEMY_MIN_SPEED = 1;
 const ENEMY_MAX_SPEED = 10;
 const ENEMY_DISTANCE_OUT_OF_FIELD_TO_THE_RIGHT = 50;
 const ENEMY_DISTANCE_OUT_OF_FIELD_TO_THE_LEFT = -100;
+const ENEMY_INITIAL_X_POSITION = -50;
+const ENEMY_INITIAL_Y_POSITION_START = 50;
+const ENEMY_INITIAL_Y_POSITION_FINISH = 220;
+const ENEMY_Y_POSITION_STEP = 85;
+const ENEMY_HEATBOX = 60;
+const allEnemies = [];
 
 // Player shifts to begin
 const PLAYER_CENTERING_SHIFT = 50;
@@ -27,6 +33,9 @@ function randomInteger(min, max) {
     let rand = min + Math.random() * (max + 1 - min);
     return Math.floor(rand);
 }
+
+
+
 // Enemies our player must avoid
 var Enemy = function(x, y) {
     // Variables applied to each of our instances go here,
@@ -78,8 +87,7 @@ Player.prototype.render = function() {
 
 Player.prototype.checkCollision = function() {
     allEnemies.forEach(enemy => {
-        const offset = 20;
-        if (this.x >= enemy.x - offset && this.x <= enemy.x + offset * 3 && this.y <= enemy.y + offset && this.y >= enemy.y || this.y >= WIN_POINT_Y_1 && this.y <= WIN_POINT_Y_2) {
+        if (this.x >= enemy.x - ENEMY_HEATBOX && this.x <= enemy.x + ENEMY_HEATBOX && this.y >= enemy.y - ENEMY_HEATBOX && this.y <= enemy.y + ENEMY_HEATBOX || this.y >= WIN_POINT_Y_1 && this.y <= WIN_POINT_Y_2) {
             this.x = this.initX;
             this.y = this.initY;
         }
@@ -106,8 +114,12 @@ Player.prototype.handleInput = function(key) {
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
-var allEnemies = [new Enemy(-50, 50), new Enemy(-50, 135), new Enemy(-50, 220)];
-var player = new Player();
+for (let i = ENEMY_INITIAL_Y_POSITION_START; i <= ENEMY_INITIAL_Y_POSITION_FINISH; i += ENEMY_Y_POSITION_STEP) {
+    allEnemies.push(new Enemy(ENEMY_INITIAL_X_POSITION, i));
+}
+
+// var allEnemies = [new Enemy(-50, 50), new Enemy(-50, 135), new Enemy(-50, 220)];
+const player = new Player();
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
