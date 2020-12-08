@@ -12,11 +12,17 @@ const ENEMY_INITIAL_Y_POSITION_START = 50;
 const ENEMY_INITIAL_Y_POSITION_FINISH = 220;
 const ENEMY_Y_POSITION_STEP = 85;
 const ENEMY_HEATBOX = 60;
+const ENEMY_SPRITE = 'images/enemy-bug.png';
 const allEnemies = [];
 
 // Player shifts to begin
 const PLAYER_CENTERING_SHIFT = 50;
 const PLAYER_INITIAL_BOTTOM_PADDING = 220;
+const PLAYER_X_STEP_SIZE = 100;
+const PLAYER_Y_STEP_SIZE = 80;
+const PLAYER_SPRITE = 'images/char-boy.png';
+const PLAYER_INIT_X = FIELD_WIDTH / 2 - PLAYER_CENTERING_SHIFT;
+const PLAYER_INIT_Y = FIELD_HEIGHT - PLAYER_INITIAL_BOTTOM_PADDING;
 
 // Collision Player Move
 const LIMITING_LEFT_PADDING = 100;
@@ -33,19 +39,26 @@ function randomInteger(min, max) {
 }
 
 
-
+const Character = function(x, y) {
+    this.x = x;
+    this.y = y;
+};
+Character.prototype.update = function(dt) {};
+Character.prototype.render = function() {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+};
 // Enemies our player must avoid
-var Enemy = function(x, y) {
+const Enemy = function(x, y) {
     // Variables applied to each of our instances go here,
     // we've provided one for you to get started
     // x: -50; y: 50
-    this.x = x;
-    this.y = y;
+    Character.call(this, x, y);
     this.speed = randomInteger(ENEMY_MIN_SPEED, ENEMY_MAX_SPEED);
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
-    this.sprite = 'images/enemy-bug.png';
+    this.sprite = ENEMY_SPRITE;
 };
+Enemy.prototype = Object.create(Character.prototype);
 
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
@@ -60,34 +73,20 @@ Enemy.prototype.update = function(dt) {
     ctx.drawImage(Resources.get(this.sprite), (this.x += this.speed) * dt, this.y);
 };
 
-// Draw the enemy on the screen, required method for game
-Enemy.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-};
-
 // Now write your own player class
 // This class requires an update(), render() and
 // a handleInput() method.
-var Player = function() {
-    this.initX = FIELD_WIDTH / 2 - PLAYER_CENTERING_SHIFT;
-    this.initY = FIELD_HEIGHT - PLAYER_INITIAL_BOTTOM_PADDING;
-    this.x = this.initX;
-    this.y = this.initY;
-    this.leftRightStepSize = 100;
-    this.upDownStepSize = 80;
-    this.sprite = 'images/char-boy.png';
+const Player = function() {
+    Character.call(this, PLAYER_INIT_X, PLAYER_INIT_Y);
+    this.sprite = PLAYER_SPRITE;
 };
-Player.prototype.update = function(dt) {};
-Player.prototype.render = function() {
-    this.checkCollision();
-    ctx.drawImage( Resources.get(this.sprite), this.x, this.y );
-};
+Player.prototype = Object.create(Character.prototype);
 
 Player.prototype.checkCollision = function() {
     allEnemies.forEach(enemy => {
         if (this.x >= enemy.x - ENEMY_HEATBOX && this.x <= enemy.x + ENEMY_HEATBOX && this.y >= enemy.y - ENEMY_HEATBOX && this.y <= enemy.y + ENEMY_HEATBOX || this.y >= WIN_POINT_Y_1 && this.y <= WIN_POINT_Y_2) {
-            this.x = this.initX;
-            this.y = this.initY;
+            this.x = PLAYER_INIT_X;
+            this.y = PLAYER_INIT_Y;
         }
     });
 };
@@ -95,16 +94,16 @@ Player.prototype.checkCollision = function() {
 Player.prototype.handleInput = function(key) {
     switch (key) {
         case 'left':
-            if (this.x >= LIMITING_LEFT_PADDING) this.x -= this.leftRightStepSize;
+            if (this.x >= LIMITING_LEFT_PADDING) this.x -= PLAYER_X_STEP_SIZE;
             break;
         case 'up':
-            if (this.y >= LIMITING_TOP_PADDING) this.y -= this.upDownStepSize;
+            if (this.y >= LIMITING_TOP_PADDING) this.y -= PLAYER_Y_STEP_SIZE;
             break;
         case 'right':
-            if (this.x <= FIELD_WIDTH - LIMITING_RIGHT_PADDING) this.x += this.leftRightStepSize;
+            if (this.x <= FIELD_WIDTH - LIMITING_RIGHT_PADDING) this.x += PLAYER_X_STEP_SIZE;
             break;
         case 'down':
-            if (this.y <= FIELD_HEIGHT - LIMITING_BOTTOM_PADDING) this.y += this.upDownStepSize;
+            if (this.y <= FIELD_HEIGHT - LIMITING_BOTTOM_PADDING) this.y += PLAYER_Y_STEP_SIZE;
             break;
     }
 };
